@@ -158,7 +158,7 @@ class CheckpointConverter:
                 self.auto_parallel_state_dict.pop(master_weight_name)
         else:
             logger.info("Calling _load_state_dict to load the required weights.")
-            _load_state_dict(self.auto_parallel_state_dict, source_state_dict, [metadata])
+            _load_state_dict(self.auto_parallel_state_dict, source_state_dict, [metadata], offload=True)
             logger.info("Calling _load_state_dict completed, restored the required weights.")
         logger.info("Successfully loaded hybrid_parallel checkpoint!")
 
@@ -440,7 +440,9 @@ class CheckpointConverter:
                     target_state_dict[key + ".beta1_pow_acc"] = paddle.zeros((1,), "float32")
                     target_state_dict[key + ".beta2_pow_acc"] = paddle.zeros((1,), "float32")
 
-                _load_state_dict(target_state_dict, self.cur_rank_loaded_state_dict, [metadata_for_merge_sharding])
+                _load_state_dict(
+                    target_state_dict, self.cur_rank_loaded_state_dict, [metadata_for_merge_sharding], offload=True
+                )
 
                 # Reshape
                 for item in cur_rank_merger_model_params:
