@@ -266,6 +266,7 @@ class TrainingArguments:
               sync_param, in optimizer step, use broadcast to sync parameters those attr 'is_distributed' is False.
               sync_grad, in optimizer step, use broadcast to sync gradients those attr 'is_distributed' is False.
               sync_moment, in optimizer step, use broadcast to sync momentums those attr 'is_distributed' is False.
+              replace_with_c_embedding, it supports replacing col-sliced embedding with row-sliced c_embedding when it set True, which is used in PIR auto_parallel.
         pipeline_parallel_config (`str`, *optional*)(
             Some additional config it highly affect the useage of pipeline parallel, we provide some option to config it.
             following config is support:
@@ -681,6 +682,7 @@ class TrainingArguments:
                 "sync_param, in optimizer step, use broadcast to sync parameters those attr 'is_distributed' is False.\n"
                 "sync_grad, in optimizer step, use broadcast to sync gradients those attr 'is_distributed' is False.\n"
                 "sync_moment, in optimizer step, use broadcast to sync momentums those attr 'is_distributed' is False.\n"
+                "replace_with_c_embedding, it supports replacing col-sliced embedding with row-sliced c_embedding when it set True, which is used in PIR auto_parallel.\n"
             )
         },
     )
@@ -1563,19 +1565,22 @@ class TrainingArguments:
                         if x not in [
                             "enable_mp_async_allreduce",  # allreduce_matmul_grad_overlapping in auto_parallel
                             "enable_delay_scale_loss",
+                            "replace_with_c_embedding",
                             # "enable_mp_skip_c_identity",
                             # "enable_mp_fused_linear_param_grad_add",
                         ]:
                             raise ValueError(
                                 f"Found unknown tensor parallell config {x}, "
-                                f"accept config is enable_mp_async_allreduce, enable_mp_skip_c_identity and enable_mp_fused_linear_param_grad_add"
+                                f"accept config is enable_mp_async_allreduce, replace_with_c_embedding, enable_mp_skip_c_identity and enable_mp_fused_linear_param_grad_add"
                             )
                 try:
                     if "enable_mp_async_allreduce" in mp_config:
                         mp_optimization.allreduce_matmul_grad_overlapping = True
+                    if "replace_with_c_embedding" in mp_config:
+                        mp_optimization.replace_with_c_embedding = True
                 except:
                     warnings.warn(
-                        "The enable_mp_async_allreduce, enable_mp_skip_c_identity and enable_mp_fused_linear_param_grad_add are not supported "
+                        "The enable_mp_async_allreduce, replace_with_c_embedding, enable_mp_skip_c_identity and enable_mp_fused_linear_param_grad_add are not supported "
                         "by current version of Paddle. Please try latest develop Paddle."
                     )
 
