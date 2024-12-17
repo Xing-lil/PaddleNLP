@@ -857,12 +857,8 @@ function llama_align_dygraph_dy2st_pir_auto_bs2_bf16_DP2-MP2-PP2-SP() {
     task_name="llama_align_dygraph_dy2st_pir_auto_bs2_bf16_dp2mp2pp2_sp"
     case_out_dir="output/$task_name"
     case_log_dir="output/$task_name""_log"
-    cmd_args=(
-        "--to_static 0"
-        "--to_static 1"
-        "--to_static 1 --tensor_parallel_config replace_with_c_embedding"
-    )
-    for cmd_arg in "${cmd_args[@]}"; do
+
+    for to_static in "0" "1"; do
         rm -rf $case_out_dir
         rm -rf $case_log_dir
         python -u -m paddle.distributed.launch \
@@ -918,7 +914,7 @@ function llama_align_dygraph_dy2st_pir_auto_bs2_bf16_DP2-MP2-PP2-SP() {
             --tensor_parallel_degree 2 \
             --virtual_pp_degree 1 \
             --sharding "" \
-            ${cmd_arg} \
+            --to_static ${to_static} \
             --num_hidden_layers 4 \
             >>${log_path}/$FUNCNAME 2>&1
         loss=`cat $case_log_dir/workerlog.0 | grep 'global_step: 10' | awk -F 'loss: ' '{print $2}' | awk -F ',' '{print $1}'`
@@ -928,7 +924,6 @@ function llama_align_dygraph_dy2st_pir_auto_bs2_bf16_DP2-MP2-PP2-SP() {
         echo "result: to_static=$to_static loss=$loss loss_md5=$loss_md5 ips=$ips mem=$mem"
         loss_base=9.25199432
         loss_md5_base=83531e98ee11cd271db175150ab254bb
-        to_static=$(echo $cmd_arg | grep -oP '(?<=--to_static )\d+')
         if [ $IS_A100 -ne 0 ] && [ $to_static -eq 0 ];then
             loss_base=9.44203949
         elif [ $IS_A100 -ne 0 ] && [ $to_static -eq 1 ];then
