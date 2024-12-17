@@ -770,6 +770,8 @@ function llama_pir_auto_fuse_ffn_attention_qkv_MP2() {
     
     tp_configs=(
         " "
+        "--tensor_parallel_config replace_with_parallel_cross_entropy"
+        "--tensor_parallel_config replace_with_c_embedding"
     )
     for tp_config in "${tp_configs[@]}"; do
         rm -rf $auto_case_out_dir
@@ -859,7 +861,7 @@ function llama_pir_auto_fuse_ffn_attention_qkv_MP2() {
         mem_base=-1
         if [ $IS_A100 -ne 0 ];then
             loss_base_2=10.58283806
-            loss_base_10=10.58283806
+            loss_base_10=9.43873405
         fi
         check_result $FUNCNAME ${loss_base_2} ${auto_loss_2} ${ips_base} ${auto_ips} ${mem_base} ${auto_mem}
         check_result $FUNCNAME ${loss_base_10} ${auto_loss_10} ${ips_base} ${auto_ips} ${mem_base} ${auto_mem}
