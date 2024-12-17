@@ -769,9 +769,9 @@ function llama_pir_auto_fuse_ffn_attention_qkv_MP2() {
     auto_case_log_dir="auto_output/$auto_task_name""_log"
     
     tp_configs=(
-        "--tensor_parallel_config replace_with_parallel_cross_entropy"
-        "--tensor_parallel_config replace_with_c_embedding"
         " "
+        "--tensor_parallel_config replace_with_c_embedding"
+        "--tensor_parallel_config replace_with_parallel_cross_entropy"
     )
     for tp_config in "${tp_configs[@]}"; do
         rm -rf $auto_case_out_dir
